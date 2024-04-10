@@ -24,6 +24,7 @@ import {
 } from "@/components";
 import { DrawingArea } from "@/components/drawing-area";
 import { RenderingArea } from "@/components/rendering-area";
+import { useWaveformAnalyzer } from "@/components/waveform-area";
 import type { IllustrationStyles } from "@/constants";
 import { APP_ID } from "@/constants";
 import { illustrationStyles } from "@/constants";
@@ -72,6 +73,7 @@ export function VJ() {
 	});
 
 	useUnload(APP_ID, "livePainting:stop");
+	useWaveformAnalyzer();
 
 	useEffect(() => {
 		if (isRunning) {
