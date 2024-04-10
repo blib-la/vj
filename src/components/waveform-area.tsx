@@ -1,4 +1,3 @@
-import Sheet from "@mui/joy/Sheet";
 import Switch from "@mui/joy/Switch";
 import { Typography } from "@mui/material";
 import { useAtom } from "jotai";
@@ -25,12 +24,11 @@ export function WaveformArea() {
 	const [clearCounter] = useAtom(clearCounterAtom);
 	const [isXorActive, setIsXorActive] = useState(false);
 	const [isScaleActive, setIsScaleActive] = useState(false);
-	const scaleFactorReference = useRef(0.95);
 	const offscreenCanvasReference = useRef<OffscreenCanvas | null>(null);
 	const offscreenContextReference = useRef<OffscreenCanvasRenderingContext2D | null>(null);
-	const [waveformPositions, setWaveformPositions] = useState<WaveformPosition[]>([]);
 
 	useEffect(() => {
+		let animationFrame = -1;
 		const offscreenCanvas = new OffscreenCanvas(512, 512);
 		canvas.current = new OffscreenCanvas(512, 512);
 		const canvasElement = canvas.current;
@@ -177,11 +175,15 @@ export function WaveformArea() {
 				}
 			}
 
-			requestAnimationFrame(renderLoop);
+			animationFrame = requestAnimationFrame(renderLoop);
 		}
 
 		renderLoop();
-	}, [isXorActive, setWaveformCanvas, targetFrameInterval, waveformPositions]);
+
+		return () => {
+			cancelAnimationFrame(animationFrame);
+		};
+	}, [isXorActive, setWaveformCanvas, targetFrameInterval]);
 
 	useEffect(() => {
 		bufferReference.current = buffer;
@@ -198,25 +200,19 @@ export function WaveformArea() {
 		}
 	}, [clearCounter]);
 
-	// UseEffect(() => {
-
-	// }, [isScaleActive]);
-
 	return (
 		<>
-			<Sheet>
-				<Typography>Waveform</Typography>
-				<Switch
-					checked={isXorActive}
-					startDecorator={<Typography>xor</Typography>}
-					onChange={event => setIsXorActive(event.target.checked)}
-				/>
-				<Switch
-					checked={isScaleActive}
-					startDecorator={<Typography>scale down</Typography>}
-					onChange={event => setIsScaleActive(event.target.checked)}
-				/>
-			</Sheet>
+			<Typography>Waveforms</Typography>
+			<Switch
+				checked={isXorActive}
+				startDecorator={<Typography>xor</Typography>}
+				onChange={event => setIsXorActive(event.target.checked)}
+			/>
+			<Switch
+				checked={isScaleActive}
+				startDecorator={<Typography>scale down</Typography>}
+				onChange={event => setIsScaleActive(event.target.checked)}
+			/>
 		</>
 	);
 }

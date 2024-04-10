@@ -1,3 +1,4 @@
+import { CustomScrollbars } from "@captn/joy/custom-scrollbars";
 import { useSDK } from "@captn/react/use-sdk";
 import BrushIcon from "@mui/icons-material/Brush";
 import CasinoIcon from "@mui/icons-material/Casino";
@@ -23,7 +24,6 @@ import {
 } from "@/components";
 import { DrawingArea } from "@/components/drawing-area";
 import { RenderingArea } from "@/components/rendering-area";
-import { WaveformArea } from "@/components/waveform-area";
 import type { IllustrationStyles } from "@/constants";
 import { APP_ID } from "@/constants";
 import { illustrationStyles } from "@/constants";
@@ -87,7 +87,7 @@ export function VJ() {
 
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
-			<StyledStickyHeader sx={{ background: "transparent" }}>
+			<StyledStickyHeader>
 				{/* Left Side of the header */}
 				<StyledButtonWrapper>
 					{/* Button to start and stop the live painting process */}
@@ -115,7 +115,7 @@ export function VJ() {
 
 					<Switch
 						checked={isColumn}
-						startDecorator={<Typography>9:16</Typography>}
+						startDecorator={<Typography>Vertical</Typography>}
 						onChange={_event => {
 							setIsColumn(_event.target.checked);
 						}}
@@ -177,61 +177,71 @@ export function VJ() {
 			</StyledStickyHeader>
 
 			{/* Main Area includes the drawing and rendering area */}
-			<Sheet
-				sx={{
-					flex: 1,
-					display: "flex",
-					flexDirection: isColumn ? "column" : "row",
-					flexWrap: "wrap",
-					py: 20,
-					position: "relative",
-					justifyContent: "center",
-					alignItems: isColumn ? "center" : "initial",
-					maxWidth: "100%",
-					transform: "scale(1.125)",
-				}}
-			>
-				<Box
-					sx={{
-						height: 512,
-						position: isOverlay ? "absolute" : "relative",
-					}}
-				>
-					<RenderingArea />
+			<Box sx={{ position: "relative", flex: 1 }}>
+				<Box sx={{ position: "absolute", inset: 0 }}>
+					<CustomScrollbars>
+						<Box
+							sx={{
+								minHeight: "100%",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+							}}
+						>
+							<Sheet
+								sx={{
+									flex: 1,
+									display: "flex",
+									flexDirection: isColumn ? "column" : "row",
+									flexWrap: "wrap",
+									position: "relative",
+									justifyContent: "center",
+									alignItems: "center",
+									maxWidth: "100%",
+								}}
+							>
+								<Box
+									sx={{
+										height: 512,
+										position: isOverlay ? "absolute" : "relative",
+									}}
+								>
+									<RenderingArea />
+								</Box>
+								<Box
+									sx={{
+										width: 512,
+										height: 512,
+										zIndex: 2,
+										position: isOverlay ? "absolute" : "relative",
+										display: "flex",
+									}}
+								>
+									<Box
+										sx={{
+											position: "absolute",
+											zIndex: 1,
+											height: 512,
+										}}
+									>
+										<DrawingArea isOverlay={isOverlay} />
+									</Box>
+
+									<Box
+										sx={{
+											position: "absolute",
+											zIndex: 0,
+											height: 512,
+										}}
+									>
+										<CompositeArea background={isOverlay ? "none" : "#000"} />
+									</Box>
+								</Box>
+							</Sheet>
+						</Box>
+					</CustomScrollbars>
 				</Box>
-				<Box
-					sx={{
-						width: 512,
-						height: 512,
-						zIndex: 2,
-						position: isOverlay ? "absolute" : "relative",
-						display: "flex",
-					}}
-				>
-					<Box
-						sx={{
-							position: "absolute",
-							zIndex: 1,
-							height: 512,
-						}}
-					>
-						<DrawingArea isOverlay={isOverlay} />
-					</Box>
-
-					<Box
-						sx={{
-							position: "absolute",
-							zIndex: 0,
-							height: 512,
-						}}
-					>
-						<CompositeArea background={isOverlay ? "none" : "#000"} />
-					</Box>
-				</Box>
-			</Sheet>
-
-			<WaveformArea />
-
+			</Box>
 			<PromptSheet
 				illustrationStyle={illustrationStyle}
 				prompt={prompt}
