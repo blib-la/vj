@@ -8,6 +8,7 @@ import { APP_ID } from "@/constants";
 
 type CompositeParameters = {
 	background?: string;
+	canvas: OffscreenCanvas | null;
 };
 
 export function CompositeArea({ background }: CompositeParameters) {

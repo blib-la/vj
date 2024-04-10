@@ -48,7 +48,7 @@ export function VJ() {
 	// Global States
 	const [livePaintingOptions, setLivePaintingOptions] = useAtom(livePaintingOptionsAtom);
 	const [image] = useAtom(imageAtom);
-	const [, setClearCounter] = useAtom(clearCounterAtom);
+	const [clearCounter, setClearCounter] = useAtom(clearCounterAtom);
 
 	const { send } = useSDK<unknown, string>(APP_ID, {
 		onMessage(message) {
@@ -73,7 +73,7 @@ export function VJ() {
 	});
 
 	useUnload(APP_ID, "livePainting:stop");
-	useWaveformAnalyzer();
+	const canvas = useWaveformAnalyzer(clearCounter);
 
 	useEffect(() => {
 		if (isRunning) {
@@ -236,7 +236,10 @@ export function VJ() {
 											height: 512,
 										}}
 									>
-										<CompositeArea background={isOverlay ? "none" : "#000"} />
+										<CompositeArea
+											background={isOverlay ? "none" : "#000"}
+											canvas={canvas}
+										/>
 									</Box>
 								</Box>
 							</Sheet>
