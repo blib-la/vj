@@ -1,5 +1,4 @@
-//
-// import { useRequiredDownloads } from "@captn/react/use-required-downloads";
+import { useRequiredDownloads } from "@captn/react/use-required-downloads";
 import CheckIcon from "@mui/icons-material/Check";
 import DownloadIcon from "@mui/icons-material/Download";
 import Box from "@mui/joy/Box";
@@ -27,7 +26,7 @@ const allRequiredDownloads = [
 	},
 ];
 
-function useRequiredDownloads(_downloads: typeof allRequiredDownloads) {
+/* Function useRequiredDownloads(_downloads: typeof allRequiredDownloads) {
 	return {
 		isCompleted: true,
 		download() {},
@@ -36,7 +35,7 @@ function useRequiredDownloads(_downloads: typeof allRequiredDownloads) {
 		downloadCount: 2,
 		requiredDownloads: allRequiredDownloads,
 	};
-}
+} */
 
 export default function Page() {
 	const { download, isCompleted, isDownloading, percent, downloadCount, requiredDownloads } =

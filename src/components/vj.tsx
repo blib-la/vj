@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { AudioAnalyzer } from "./audio-analyzer";
 import { CompositeArea } from "./composite-area";
 
-import { clearCounterAtom, imageAtom, livePaintingOptionsAtom } from "@/atoms";
+import { imageAtom, livePaintingOptionsAtom } from "@/atoms";
 import {
 	ColorInputButton,
 	PopupSlider,
@@ -35,20 +35,30 @@ export function randomSeed() {
 	return Math.ceil(Math.random() * 1_000_000_000) + 1;
 }
 
+function useLog(key: string, trigger: unknown) {
+	useEffect(() => {
+		console.log(`trigger, ${key}`);
+	}, [trigger, key]);
+}
+
 export function VJ() {
 	// Local States
 	const [isOverlay, setIsOverlay] = useState(false);
 	const [isColumn, setIsColumn] = useState(false);
 	const [prompt, setPrompt] = useState("");
-	const [illustrationStyle, setIllustrationStyle] = useState<IllustrationStyles>("childrensBook");
+	const [illustrationStyle, setIllustrationStyle] = useState<IllustrationStyles>(
+		Object.keys(illustrationStyles)[0] as IllustrationStyles
+	);
 	const [seed, setSeed] = useState(randomSeed());
+	const [clearCounter, setClearCounter] = useState(-1);
+
+	// Check if the ipc process is running
 	const [isRunning, setIsRunning] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
 	// Global States
 	const [livePaintingOptions, setLivePaintingOptions] = useAtom(livePaintingOptionsAtom);
 	const [image] = useAtom(imageAtom);
-	const [clearCounter, setClearCounter] = useAtom(clearCounterAtom);
 
 	const { send } = useSDK<unknown, string>(APP_ID, {
 		onMessage(message) {
@@ -72,8 +82,9 @@ export function VJ() {
 		},
 	});
 
+	useWaveformAnalyzer(clearCounter);
+
 	useUnload(APP_ID, "livePainting:stop");
-	const canvas = useWaveformAnalyzer(clearCounter);
 
 	useEffect(() => {
 		if (isRunning) {
@@ -82,10 +93,15 @@ export function VJ() {
 				payload: {
 					prompt: [prompt, illustrationStyles[illustrationStyle]].join(", "),
 					seed,
+					steps: 1,
+					guidance_scale: 0,
+					strength: 1,
 				},
 			});
 		}
 	}, [send, prompt, seed, isRunning, illustrationStyle]);
+
+	useLog("send", send);
 
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
@@ -122,6 +138,7 @@ export function VJ() {
 							setIsColumn(_event.target.checked);
 						}}
 					/>
+
 					<Box sx={theme => ({ width: theme.spacing(1) })} />
 					{/* Select the painting color */}
 					<ColorInputButton
@@ -160,6 +177,7 @@ export function VJ() {
 						<CasinoIcon />
 					</TooltipButton>
 					{/* Clear the drawing canvas */}
+					<Box sx={theme => ({ width: theme.spacing(1) })} />
 					<TooltipButton
 						label="Clear"
 						onClick={() => {
@@ -222,23 +240,22 @@ export function VJ() {
 									<Box
 										sx={{
 											position: "absolute",
-											zIndex: 1,
-											height: 512,
-										}}
-									>
-										<DrawingArea isOverlay={isOverlay} />
-									</Box>
-
-									<Box
-										sx={{
-											position: "absolute",
-											zIndex: 0,
-											height: 512,
+											inset: 0,
 										}}
 									>
 										<CompositeArea
-											background={isOverlay ? "none" : "#000"}
-											canvas={canvas}
+											background={isOverlay ? "none" : "#000000"}
+										/>
+									</Box>
+									<Box
+										sx={{
+											position: "absolute",
+											inset: 0,
+										}}
+									>
+										<DrawingArea
+											isOverlay={isOverlay}
+											clearCounter={clearCounter}
 										/>
 									</Box>
 								</Box>

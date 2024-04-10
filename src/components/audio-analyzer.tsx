@@ -5,7 +5,7 @@ import type { MeydaFeaturesObject } from "meyda";
 import Meyda from "meyda";
 import React, { useEffect, useRef, useState } from "react";
 
-import { audioDeviceAtom, bufferAtom, rmsAtom } from "../atoms";
+import { audioDeviceAtom, bufferAtom, rmsAtom } from "@/atoms";
 
 function DeviceSelector({ onSelect }: { onSelect: (deviceId: string) => void }) {
 	const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
@@ -81,7 +81,6 @@ export function AudioAnalyzer() {
 					bufferSize: 256,
 					featureExtractors: ["rms", "buffer"],
 					callback(features: Partial<MeydaFeaturesObject>) {
-						console.log(features);
 						const { rms } = features;
 
 						if (features.buffer) {

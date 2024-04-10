@@ -2,40 +2,31 @@ import { useSDK } from "@captn/react/use-sdk";
 import { useAtom } from "jotai";
 import { useEffect, useRef } from "react";
 
-import { drawingCanvasAtom, waveformCanvasAtom } from "../atoms";
-
+import { drawingCanvasAtom, waveformCanvasAtom } from "@/atoms";
 import { APP_ID } from "@/constants";
 
 type CompositeParameters = {
 	background?: string;
-	canvas: OffscreenCanvas | null;
+	canvas?: OffscreenCanvas | null;
 };
 
 export function CompositeArea({ background }: CompositeParameters) {
 	const canvas = useRef<HTMLCanvasElement>(null);
 
-	const [drawingCanvass] = useAtom(drawingCanvasAtom);
-	const [waveformCanvass] = useAtom(waveformCanvasAtom);
+	const [drawingCanvas_] = useAtom(drawingCanvasAtom);
+	const [waveformCanvas_] = useAtom(waveformCanvasAtom);
 
 	const { send } = useSDK<unknown, string>(APP_ID, {});
 
 	useEffect(() => {
-		console.log("composite.area");
+		// Target for 60 FPS
+		const targetFrameInterval = 1000 / 60;
+		let lastRenderTime = Date.now();
+		let animationFrameId: number;
+
 		const canvasElement = canvas.current;
 
-		//
-		// function readerHandler() {
-		// 	const arrayBuffer: ArrayBuffer = reader.result as ArrayBuffer;
-		// 	const buffer = Buffer.from(arrayBuffer);
-
-		// 	send({ action: "livePainting:imageBuffer", payload: buffer });
-		// }
-
-		// const reader = new FileReader();
-
-		// reader.addEventListener("load", readerHandler);
-
-		if (!canvasElement) {
+		if (!canvasElement || !waveformCanvas_ || !drawingCanvas_) {
 			return;
 		}
 
@@ -44,6 +35,10 @@ export function CompositeArea({ background }: CompositeParameters) {
 		canvasElement.width = 512 * dpr;
 		const context = canvasElement.getContext("2d");
 
+		if (!context) {
+			return;
+		}
+
 		const offscreenCanvas = document.createElement("canvas");
 		const scale = 0.125;
 		offscreenCanvas.width = canvas.current.width * scale;
@@ -51,70 +46,61 @@ export function CompositeArea({ background }: CompositeParameters) {
 
 		const offscreenContext = offscreenCanvas.getContext("2d");
 
-		if (offscreenContext) {
-			offscreenContext.scale(scale, scale);
-		}
-
-		if (!context) {
+		if (!offscreenContext) {
 			return;
 		}
 
+		offscreenContext.scale(scale, scale);
 		context.scale(dpr, dpr);
-
-		const targetFrameInterval = 1000 / 50;
-		let lastRenderTime = Date.now();
-
-		let animationFrameId: number;
 
 		function renderLoop() {
 			const now = Date.now();
 			const elapsed = now - lastRenderTime;
 
+			if (
+				!context ||
+				!canvasElement ||
+				!drawingCanvas_ ||
+				!offscreenContext ||
+				!waveformCanvas_
+			) {
+				return;
+			}
+
 			if (elapsed > targetFrameInterval) {
 				lastRenderTime = now - (elapsed % targetFrameInterval);
-
-				if (!context || !canvasElement) {
-					return;
-				}
 
 				// Clear the canvas
 				context.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-				if (drawingCanvass) {
-					context.drawImage(drawingCanvass, 0, 0);
-				}
+				// Create layers
+				context.drawImage(waveformCanvas_, 0, 0);
+				context.drawImage(drawingCanvas_, 0, 0);
 
-				if (waveformCanvass) {
-					context.drawImage(waveformCanvass, 0, 0);
-				}
+				offscreenContext.fillStyle = "#000000";
+				offscreenContext.rect(0, 0, canvasElement.width, canvasElement.height);
+				offscreenContext.fill();
 
-				if (offscreenContext) {
-					offscreenContext.fillStyle = "#000";
-					offscreenContext.rect(0, 0, canvasElement.width, canvasElement.height);
-					offscreenContext.fill();
+				offscreenContext.drawImage(canvasElement, 0, 0);
 
-					offscreenContext.drawImage(canvas.current, 0, 0);
+				// Send the composite canvas data to the backend
+				offscreenCanvas.toBlob(
+					async blob => {
+						if (!blob) {
+							return;
+						}
 
-					// Send the composite canvas data to the backend
-					offscreenCanvas.toBlob(
-						async blob => {
-							if (!blob) {
-								return;
-							}
+						const arrayBuffer = await blob.arrayBuffer();
+						const buffer = Buffer.from(arrayBuffer);
 
-							const arrayBuffer = await blob.arrayBuffer();
-							const buffer = Buffer.from(arrayBuffer);
-
-							send({
-								action: "livePainting:imageBuffer",
-								payload: { appId: APP_ID, buffer },
-							});
-							// Reader.readAsArrayBuffer(blob);
-						},
-						"image/jpeg",
-						0.1
-					);
-				}
+						send({
+							action: "livePainting:imageBuffer",
+							payload: { appId: APP_ID, buffer },
+						});
+					},
+					"image/jpeg",
+					0.1
+				);
 			}
 
 			animationFrameId = requestAnimationFrame(renderLoop);
@@ -126,9 +112,8 @@ export function CompositeArea({ background }: CompositeParameters) {
 		// Cleanup function to cancel the loop when the component unmounts or dependencies change
 		return () => {
 			cancelAnimationFrame(animationFrameId);
-			// Reader.removeEventListener("load", readerHandler);
 		};
-	}, [drawingCanvass, waveformCanvass, send]);
+	}, [drawingCanvas_, waveformCanvas_, send]);
 
 	return <canvas ref={canvas} style={{ pointerEvents: "none", background }} />;
 }
