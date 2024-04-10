@@ -1,6 +1,7 @@
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useSetAtom } from "jotai";
+import type { MeydaFeaturesObject } from "meyda";
 import Meyda from "meyda";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -74,23 +75,27 @@ export function AudioAnalyzer() {
 				audioContextReference.current = audioContext;
 
 				// Initialize Meyda with the new source
-				const analyzer = Meyda.createMeydaAnalyzer({
+				analyzerReference.current = Meyda.createMeydaAnalyzer({
 					audioContext,
 					source,
 					bufferSize: 256,
 					featureExtractors: ["rms", "buffer"],
-					async callback(features: any) {
+					callback(features: Partial<MeydaFeaturesObject>) {
+						console.log(features);
 						const { rms } = features;
 
-						const buffer = Meyda.windowing(features.buffer, "blackman") as Float32Array;
+						if (features.buffer) {
+							const buffer = Meyda.windowing(features.buffer, "blackman");
+							if (rms) {
+								setRms(rms);
+							}
 
-						setRms(rms);
-						setBuffer(buffer);
+							setBuffer(buffer);
+						}
 					},
 				});
 
-				analyzer.start();
-				analyzerReference.current = analyzer;
+				analyzerReference.current.start();
 			} catch (error) {
 				console.error("Error initializing audio processing:", error);
 			}
@@ -119,9 +124,5 @@ export function AudioAnalyzer() {
 		setAudioDevice(deviceId);
 	}
 
-	return (
-		<>
-			<DeviceSelector onSelect={handleDeviceSelect} />
-		</>
-	);
+	return <DeviceSelector onSelect={handleDeviceSelect} />;
 }

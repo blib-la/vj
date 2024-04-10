@@ -1,6 +1,7 @@
 import Switch from "@mui/joy/Switch";
 import { Typography } from "@mui/material";
 import { useAtom } from "jotai";
+import type { SliceableArrayLike } from "meyda";
 import { useEffect, useRef, useState } from "react";
 
 import { bufferAtom, clearCounterAtom, rmsAtom, waveformCanvasAtom } from "../atoms";
@@ -17,7 +18,7 @@ export function WaveformArea() {
 	const [buffer] = useAtom(bufferAtom);
 	const [rms] = useAtom(rmsAtom);
 	const [, setWaveformCanvas] = useAtom(waveformCanvasAtom);
-	const bufferReference = useRef<Float32Array | null>(null);
+	const bufferReference = useRef<SliceableArrayLike<number> | null>(null);
 	const rmsReference = useRef<number | null>(null);
 	const lastRenderTimeReference = useRef(Date.now());
 	const targetFrameInterval = 1000 / 50;
