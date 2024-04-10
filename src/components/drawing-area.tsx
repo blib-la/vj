@@ -2,17 +2,22 @@ import Box from "@mui/joy/Box";
 import { useAtom } from "jotai";
 import { type PointerEvent as ReactPointerEvent, useEffect, useRef } from "react";
 
-import { clearCounterAtom, drawingCanvasAtom, livePaintingOptionsAtom } from "../atoms";
+import { drawingCanvasAtom, livePaintingOptionsAtom } from "../atoms";
 
-export function DrawingArea({ isOverlay }: { isOverlay?: boolean }) {
+export function DrawingArea({
+	isOverlay,
+	clearCounter,
+}: {
+	isOverlay?: boolean;
+	clearCounter: number;
+}) {
 	const canvas = useRef<HTMLCanvasElement>(null);
 	const context = useRef<CanvasRenderingContext2D | null>(null);
-	const [drawingCanvas, setDrawingCanvas] = useAtom(drawingCanvasAtom);
-
 	const isDrawing = useRef<boolean>(false);
-	const [livePaintingOptions] = useAtom(livePaintingOptionsAtom);
-	const [clearCounter] = useAtom(clearCounterAtom);
+
 	const canvasContainerReference = useRef<HTMLDivElement>(null);
+	const [, setDrawingCanvas] = useAtom(drawingCanvasAtom);
+	const [livePaintingOptions] = useAtom(livePaintingOptionsAtom);
 
 	function startDrawing(event: ReactPointerEvent) {
 		if (!canvas.current) {
@@ -35,11 +40,10 @@ export function DrawingArea({ isOverlay }: { isOverlay?: boolean }) {
 		}
 
 		const dpr = Math.max(window.devicePixelRatio, 1);
-		console.log(dpr);
+
 		canvasElement.height = 512 * dpr;
 		canvasElement.width = 512 * dpr;
 
-		console.log(dpr, 512 * dpr);
 		context.current = canvasElement.getContext("2d");
 
 		setDrawingCanvas(canvas.current);

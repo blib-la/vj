@@ -5,7 +5,7 @@
   "scripts": {
     "build": "next build",
     "prebuild": "npm run eslint -- --fix",
-    "postbuild": "xcopy out\\* C:\\Users\\NERDDISCO\\AppData\\Roaming\\captain__development__\\Captain_Data\\apps\\fd82ab5b-2ebd-46ea-91f6-7b25cbaf9325\\ /E /H /C /I /Y",
+    "__postbuild": "xcopy out\\* C:\\Users\\NERDDISCO\\AppData\\Roaming\\captain__development__\\Captain_Data\\apps\\fd82ab5b-2ebd-46ea-91f6-7b25cbaf9325\\ /E /H /C /I /Y",
     "dev": "next dev",
     "eslint": "eslint \"src/{**/*,*}.{ts,tsx}\"",
     "lint": "next lint",

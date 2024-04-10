@@ -1,3 +1,4 @@
+import { CustomScrollbars } from "@captn/joy/custom-scrollbars";
 import { useSDK } from "@captn/react/use-sdk";
 import BrushIcon from "@mui/icons-material/Brush";
 import CasinoIcon from "@mui/icons-material/Casino";
@@ -12,7 +13,7 @@ import { useEffect, useState } from "react";
 import { AudioAnalyzer } from "./audio-analyzer";
 import { CompositeArea } from "./composite-area";
 
-import { clearCounterAtom, imageAtom, livePaintingOptionsAtom } from "@/atoms";
+import { imageAtom, livePaintingOptionsAtom } from "@/atoms";
 import {
 	ColorInputButton,
 	PopupSlider,
@@ -23,7 +24,7 @@ import {
 } from "@/components";
 import { DrawingArea } from "@/components/drawing-area";
 import { RenderingArea } from "@/components/rendering-area";
-import { WaveformArea } from "@/components/waveform-area";
+import { useWaveformAnalyzer } from "@/components/waveform-area";
 import type { IllustrationStyles } from "@/constants";
 import { APP_ID } from "@/constants";
 import { illustrationStyles } from "@/constants";
@@ -34,20 +35,30 @@ export function randomSeed() {
 	return Math.ceil(Math.random() * 1_000_000_000) + 1;
 }
 
+function useLog(key: string, trigger: unknown) {
+	useEffect(() => {
+		console.log(`trigger, ${key}`);
+	}, [trigger, key]);
+}
+
 export function VJ() {
 	// Local States
 	const [isOverlay, setIsOverlay] = useState(false);
 	const [isColumn, setIsColumn] = useState(false);
 	const [prompt, setPrompt] = useState("");
-	const [illustrationStyle, setIllustrationStyle] = useState<IllustrationStyles>("childrensBook");
+	const [illustrationStyle, setIllustrationStyle] = useState<IllustrationStyles>(
+		Object.keys(illustrationStyles)[0] as IllustrationStyles
+	);
 	const [seed, setSeed] = useState(randomSeed());
+	const [clearCounter, setClearCounter] = useState(-1);
+
+	// Check if the ipc process is running
 	const [isRunning, setIsRunning] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
 	// Global States
 	const [livePaintingOptions, setLivePaintingOptions] = useAtom(livePaintingOptionsAtom);
 	const [image] = useAtom(imageAtom);
-	const [, setClearCounter] = useAtom(clearCounterAtom);
 
 	const { send } = useSDK<unknown, string>(APP_ID, {
 		onMessage(message) {
@@ -71,6 +82,8 @@ export function VJ() {
 		},
 	});
 
+	useWaveformAnalyzer(clearCounter);
+
 	useUnload(APP_ID, "livePainting:stop");
 
 	useEffect(() => {
@@ -80,14 +93,19 @@ export function VJ() {
 				payload: {
 					prompt: [prompt, illustrationStyles[illustrationStyle]].join(", "),
 					seed,
+					steps: 1,
+					guidance_scale: 0,
+					strength: 1,
 				},
 			});
 		}
 	}, [send, prompt, seed, isRunning, illustrationStyle]);
 
+	useLog("send", send);
+
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
-			<StyledStickyHeader sx={{ background: "transparent" }}>
+			<StyledStickyHeader>
 				{/* Left Side of the header */}
 				<StyledButtonWrapper>
 					{/* Button to start and stop the live painting process */}
@@ -115,11 +133,12 @@ export function VJ() {
 
 					<Switch
 						checked={isColumn}
-						startDecorator={<Typography>9:16</Typography>}
+						startDecorator={<Typography>Vertical</Typography>}
 						onChange={_event => {
 							setIsColumn(_event.target.checked);
 						}}
 					/>
+
 					<Box sx={theme => ({ width: theme.spacing(1) })} />
 					{/* Select the painting color */}
 					<ColorInputButton
@@ -158,6 +177,7 @@ export function VJ() {
 						<CasinoIcon />
 					</TooltipButton>
 					{/* Clear the drawing canvas */}
+					<Box sx={theme => ({ width: theme.spacing(1) })} />
 					<TooltipButton
 						label="Clear"
 						onClick={() => {
@@ -177,61 +197,73 @@ export function VJ() {
 			</StyledStickyHeader>
 
 			{/* Main Area includes the drawing and rendering area */}
-			<Sheet
-				sx={{
-					flex: 1,
-					display: "flex",
-					flexDirection: isColumn ? "column" : "row",
-					flexWrap: "wrap",
-					py: 20,
-					position: "relative",
-					justifyContent: "center",
-					alignItems: isColumn ? "center" : "initial",
-					maxWidth: "100%",
-					transform: "scale(1.125)",
-				}}
-			>
-				<Box
-					sx={{
-						height: 512,
-						position: isOverlay ? "absolute" : "relative",
-					}}
-				>
-					<RenderingArea />
+			<Box sx={{ position: "relative", flex: 1 }}>
+				<Box sx={{ position: "absolute", inset: 0 }}>
+					<CustomScrollbars>
+						<Box
+							sx={{
+								minHeight: "100%",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+							}}
+						>
+							<Sheet
+								sx={{
+									flex: 1,
+									display: "flex",
+									flexDirection: isColumn ? "column" : "row",
+									flexWrap: "wrap",
+									position: "relative",
+									justifyContent: "center",
+									alignItems: "center",
+									maxWidth: "100%",
+								}}
+							>
+								<Box
+									sx={{
+										height: 512,
+										position: isOverlay ? "absolute" : "relative",
+									}}
+								>
+									<RenderingArea />
+								</Box>
+								<Box
+									sx={{
+										width: 512,
+										height: 512,
+										zIndex: 2,
+										position: isOverlay ? "absolute" : "relative",
+										display: "flex",
+									}}
+								>
+									<Box
+										sx={{
+											position: "absolute",
+											inset: 0,
+										}}
+									>
+										<CompositeArea
+											background={isOverlay ? "none" : "#000000"}
+										/>
+									</Box>
+									<Box
+										sx={{
+											position: "absolute",
+											inset: 0,
+										}}
+									>
+										<DrawingArea
+											isOverlay={isOverlay}
+											clearCounter={clearCounter}
+										/>
+									</Box>
+								</Box>
+							</Sheet>
+						</Box>
+					</CustomScrollbars>
 				</Box>
-				<Box
-					sx={{
-						width: 512,
-						height: 512,
-						zIndex: 2,
-						position: isOverlay ? "absolute" : "relative",
-						display: "flex",
-					}}
-				>
-					<Box
-						sx={{
-							position: "absolute",
-							zIndex: 1,
-							height: 512,
-						}}
-					>
-						<DrawingArea isOverlay={isOverlay} />
-					</Box>
-
-					<Box
-						sx={{
-							position: "absolute",
-							zIndex: 0,
-							height: 512,
-						}}
-					>
-						<CompositeArea background={isOverlay ? "none" : "#000"} />
-					</Box>
-				</Box>
-			</Sheet>
-
-			<WaveformArea />
-
+			</Box>
 			<PromptSheet
 				illustrationStyle={illustrationStyle}
 				prompt={prompt}
