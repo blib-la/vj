@@ -10,7 +10,8 @@ export const illustrationStyles = {
 		"intricate tribal patterns, aztec, maya patterns, mexican style, shamanism, ethnobotany, ornate elements, spiritual visuals",
 	"Children's book":
 		"whimsical, watercolor, children's book illustration, soft edges, vibrant highlights, light and shadow play, dynamic perspective, expressive, anthropomorphic details, pastel background, colorful accents, imaginative scenery",
-	Anime: "anime, manga art chibi, kawaii style, bright colors, fantasy elements, playful designs",
+	Mandelbulb:
+		"mandelbulb fractal, ultra sharp focus, extremely intricate texture, precise lines, highres, 3d fractals, 4d, 4k, shader material, madelbrot set, zoom",
 	"Fantasy Art":
 		"detailed, imaginative, epic, vibrant color palette, mythical themes, dynamic lighting, magical elements",
 	Realism:
