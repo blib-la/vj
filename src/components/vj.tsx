@@ -105,7 +105,6 @@ export function VJ() {
 		}
 	}, [guidanceSettings, send, prompt, seed, isRunning, illustrationStyle]);
 
-	useLog("send", send);
 
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>

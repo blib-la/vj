@@ -4,8 +4,6 @@
   "extends": [
     "typescript",
     "eslint:recommended",
-    "xo",
-    "plugin:unicorn/recommended",
     "plugin:prettier/recommended",
     "next/core-web-vitals"
   ],
@@ -18,7 +16,7 @@
   "globals": {
     "BufferEncoding": "readonly"
   },
-  "plugins": ["@typescript-eslint", "unicorn", "unused-imports", "import", "jest", "prettier"],
+  "plugins": ["@typescript-eslint",  "unused-imports", "import", "jest", "prettier"],
   "ignorePatterns": ["*.d.ts"],
   "rules": {
     "import/order": [
@@ -50,9 +48,6 @@
     "object-curly-spacing": ["error", "always"],
     "prettier/prettier": "error",
     "arrow-body-style": ["error", "as-needed"],
-    "unicorn/prefer-node-protocol": "off",
-    "unicorn/prefer-module": "off",
-    "unicorn/prefer-top-level-await": "off",
     "@typescript-eslint/consistent-type-imports": "error",
     "react/jsx-curly-brace-presence": "error",
     "react/self-closing-comp": "error",
@@ -73,13 +68,6 @@
     ],
     "func-style": ["error", "declaration"],
     "prefer-arrow-callback": "error",
-    "unicorn/filename-case": [
-      "error",
-      {
-        "case": "kebabCase",
-        "ignore": ["^\\[.*\\]\\.tsx?$"]
-      }
-    ],
     "react/jsx-sort-props": [
       "error",
       {

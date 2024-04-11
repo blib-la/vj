@@ -26,6 +26,17 @@ const allRequiredDownloads = [
 	},
 ];
 
+/* Function useRequiredDownloads(_downloads: typeof allRequiredDownloads) {
+	return {
+		isCompleted: true,
+		download() {},
+		percent: 1,
+		isDownloading: false,
+		downloadCount: 2,
+		requiredDownloads: allRequiredDownloads,
+	};
+} */
+
 export default function Page() {
 	const { download, isCompleted, isDownloading, percent, downloadCount, requiredDownloads } =
 		useRequiredDownloads(allRequiredDownloads);

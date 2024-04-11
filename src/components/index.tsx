@@ -29,9 +29,8 @@ import {
 import type { Except } from "type-fest";
 import { v4 } from "uuid";
 
-import { APP_ID } from "../constants";
-
 import type { IllustrationStyles } from "@/constants";
+import { APP_ID } from "@/constants";
 import { illustrationStyles } from "@/constants";
 import { useResettableState } from "@/hooks";
 import { StyledColorInput } from "@/styled";
