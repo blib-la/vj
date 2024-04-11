@@ -1,6 +1,5 @@
 import { globalStyles } from "@captn/joy/styles";
 import { ThemeProvider } from "@captn/joy/theme";
-import { useSDK } from "@captn/react/use-sdk";
 import { USER_THEME_KEY } from "@captn/utils/constants";
 import CssBaseline from "@mui/joy/CssBaseline";
 import { useColorScheme } from "@mui/joy/styles";
@@ -8,17 +7,8 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useEffect } from "react";
 
-import package_ from "../../package.json";
-
-const id = package_.name;
-
 export function ThemeHandler() {
 	const { setMode } = useColorScheme();
-	useSDK<string, { appPath: string }>(id, {
-		onMessage(message) {
-			console.log(message);
-		},
-	});
 
 	useEffect(() => {
 		const unsubscribeTheme = window.ipc?.on(
