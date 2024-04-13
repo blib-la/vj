@@ -3,6 +3,7 @@ import { useSDK } from "@captn/react/use-sdk";
 import BrushIcon from "@mui/icons-material/Brush";
 import CasinoIcon from "@mui/icons-material/Casino";
 import ClearIcon from "@mui/icons-material/Clear";
+import DrawIcon from "@mui/icons-material/Draw";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import Sheet from "@mui/joy/Sheet";
@@ -10,6 +11,7 @@ import Switch from "@mui/joy/Switch";
 import Typography from "@mui/joy/Typography";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
+import { v4 } from "uuid";
 
 import { AudioAnalyzer } from "./audio-analyzer";
 import { CompositeArea } from "./composite-area";
@@ -24,6 +26,7 @@ import {
 	TooltipButton,
 } from "@/components";
 import { DrawingArea } from "@/components/drawing-area";
+import { EraserIcon } from "@/components/icons";
 import { RenderingArea } from "@/components/rendering-area";
 import { useWaveformAnalyzer } from "@/components/waveform-area";
 import type { IllustrationStyles } from "@/constants";
@@ -36,21 +39,50 @@ export function randomSeed() {
 	return Math.ceil(Math.random() * 1_000_000_000) + 1;
 }
 
-function useLog(key: string, trigger: unknown) {
-	useEffect(() => {
-		console.log(`trigger, ${key}`);
-	}, [trigger, key]);
-}
+const quickSettings: {
+	id: string;
+	steps: number;
+	guidance_scale: number;
+	strength: number;
+}[] = [
+	{
+		id: v4(),
+		steps: 1,
+		guidance_scale: 0,
+		strength: 1,
+	},
+	{
+		id: v4(),
+		steps: 2,
+		guidance_scale: 0,
+		strength: 1,
+	},
+	{
+		id: v4(),
+		steps: 3,
+		guidance_scale: 0.8,
+		strength: 0.95,
+	},
+	{
+		id: v4(),
+		steps: 4,
+		guidance_scale: 1.1,
+		strength: 0.9,
+	},
+	{
+		id: v4(),
+		steps: 5,
+		guidance_scale: 1.5,
+		strength: 0.85,
+	},
+];
 
 export function VJ() {
 	// Local States
-	const [guidanceSettings, setGuidanceSettings] = useState({
-		strength: 0.95,
-		guidance_scale: 1,
-		steps: 2,
-	});
+	const [guidanceSettings, setGuidanceSettings] = useState(quickSettings[0]);
 	const [isOverlay, setIsOverlay] = useState(false);
 	const [isColumn, setIsColumn] = useState(false);
+	const [isErasing, setIsErasing] = useState(false);
 	const [prompt, setPrompt] = useState("");
 	const [illustrationStyle, setIllustrationStyle] = useState<IllustrationStyles>(
 		Object.keys(illustrationStyles)[0] as IllustrationStyles
@@ -147,7 +179,30 @@ export function VJ() {
 						}}
 					/>
 
-					<Box sx={theme => ({ width: theme.spacing(1) })} />
+					<Box sx={theme => ({ width: theme.spacing(2) })} />
+					<TooltipButton
+						label="Eraser"
+						color="neutral"
+						variant={isErasing ? "soft" : "plain"}
+						aria-label="erase"
+						onClick={() => {
+							setIsErasing(true);
+						}}
+					>
+						<EraserIcon />
+					</TooltipButton>
+					<TooltipButton
+						label="Draw"
+						color="neutral"
+						variant={isErasing ? "plain" : "soft"}
+						aria-label="draw"
+						onClick={() => {
+							setIsErasing(false);
+						}}
+					>
+						<DrawIcon />
+					</TooltipButton>
+
 					{/* Select the painting color */}
 					<ColorInputButton
 						label="Color"
@@ -185,7 +240,6 @@ export function VJ() {
 						<CasinoIcon />
 					</TooltipButton>
 					{/* Clear the drawing canvas */}
-					<Box sx={theme => ({ width: theme.spacing(1) })} />
 					<TooltipButton
 						label="Clear"
 						onClick={() => {
@@ -194,69 +248,21 @@ export function VJ() {
 					>
 						<ClearIcon />
 					</TooltipButton>
+					<Box sx={{ flex: 1 }} />
 				</StyledButtonWrapper>
 				{/* Right Side of the header */}
 				<StyledButtonWrapper>
-					<Button
-						variant={guidanceSettings.steps === 1 ? "soft" : "plain"}
-						onClick={() => {
-							setGuidanceSettings({
-								steps: 1,
-								guidance_scale: 0,
-								strength: 1,
-							});
-						}}
-					>
-						1
-					</Button>
-					<Button
-						variant={guidanceSettings.steps === 2 ? "soft" : "plain"}
-						onClick={() => {
-							setGuidanceSettings({
-								steps: 2,
-								guidance_scale: 1,
-								strength: 0.98,
-							});
-						}}
-					>
-						2
-					</Button>
-					<Button
-						variant={guidanceSettings.steps === 3 ? "soft" : "plain"}
-						onClick={() => {
-							setGuidanceSettings({
-								steps: 3,
-								guidance_scale: 1,
-								strength: 0.95,
-							});
-						}}
-					>
-						3
-					</Button>
-					<Button
-						variant={guidanceSettings.steps === 4 ? "soft" : "plain"}
-						onClick={() => {
-							setGuidanceSettings({
-								steps: 4,
-								guidance_scale: 1.25,
-								strength: 0.95,
-							});
-						}}
-					>
-						4
-					</Button>
-					<Button
-						variant={guidanceSettings.steps === 5 ? "soft" : "plain"}
-						onClick={() => {
-							setGuidanceSettings({
-								steps: 5,
-								guidance_scale: 1.5,
-								strength: 0.85,
-							});
-						}}
-					>
-						5
-					</Button>
+					{quickSettings.map((setting, index) => (
+						<Button
+							key={setting.id}
+							variant={guidanceSettings.id === setting.id ? "soft" : "plain"}
+							onClick={() => {
+								setGuidanceSettings(setting);
+							}}
+						>
+							{index + 1}
+						</Button>
+					))}
 					<Box sx={{ flex: 1 }} />
 					<AudioAnalyzer />
 					{/* Save the image to disk (includes a control + s listener) */}
@@ -306,6 +312,7 @@ export function VJ() {
 									>
 										<CompositeArea
 											background={isOverlay ? "none" : "#000000"}
+											isRunning={isRunning}
 										/>
 									</Box>
 									<Box
@@ -316,6 +323,7 @@ export function VJ() {
 									>
 										<DrawingArea
 											isOverlay={isOverlay}
+											isErasing={isErasing}
 											clearCounter={clearCounter}
 										/>
 									</Box>
