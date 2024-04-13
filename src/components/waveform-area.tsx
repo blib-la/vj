@@ -160,6 +160,7 @@ export function useWaveformAnalyzer(clearCounter: number) {
 					}
 				}
 			}
+
 			animationFrame = requestAnimationFrame(renderLoop);
 		}
 

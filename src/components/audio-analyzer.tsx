@@ -1,3 +1,4 @@
+import Box from "@mui/joy/Box";
 import Option from "@mui/joy/Option";
 import Select from "@mui/joy/Select";
 import { useSetAtom } from "jotai";
@@ -29,13 +30,15 @@ function DeviceSelector({ onSelect }: { onSelect: (deviceId: string) => void }) 
 	}
 
 	return (
-		<Select value={selectedDevice} placeholder="Audio" onChange={handleChange}>
-			{devices.map(device => (
-				<Option key={device.deviceId} value={device.deviceId}>
-					{device.label || "Unnamed Device"}
-				</Option>
-			))}
-		</Select>
+		<Box sx={{ width: 180 }}>
+			<Select value={selectedDevice} placeholder="Audio" onChange={handleChange}>
+				{devices.map(device => (
+					<Option key={device.deviceId} value={device.deviceId}>
+						{device.label || "Unnamed Device"}
+					</Option>
+				))}
+			</Select>
+		</Box>
 	);
 }
 

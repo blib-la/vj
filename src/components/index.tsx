@@ -236,33 +236,77 @@ export function PromptSheet({
 				py: 2,
 			}}
 		>
-			<FormControl sx={{ minWidth: 200 }}>
-				<FormLabel>Style</FormLabel>
-				<Select
-					value={illustrationStyle}
-					renderValue={option => option && <Typography>{option.value}</Typography>}
-					onChange={(_event, value_) => {
-						if (value_) {
-							onIllustrationStyleChange(value_);
-						}
+			<Box sx={{ minWidth: 200 }}>
+				<FormControl sx={{ width: "100%" }}>
+					<FormLabel>Style</FormLabel>
+					<Select
+						value={illustrationStyle}
+						renderValue={option => option && <Typography>{option.value}</Typography>}
+						onChange={(_event, value_) => {
+							if (value_) {
+								onIllustrationStyleChange(value_);
+							}
+						}}
+					>
+						{Object.entries(illustrationStyles).map(([key_]) => (
+							<Option
+								key={key_}
+								value={key_}
+								sx={{ flexDirection: "column", alignItems: "stretch" }}
+							>
+								<Typography>{key_}</Typography>
+								{key_ === "Custom" && (
+									<Typography level="body-xs" component="div">
+										Please add your style in the prompt field
+									</Typography>
+								)}
+							</Option>
+						))}
+					</Select>
+				</FormControl>
+				<Button
+					onClick={() => {
+						onPromptChange("a group of people dancing in a disco");
 					}}
 				>
-					{Object.entries(illustrationStyles).map(([key_]) => (
-						<Option
-							key={key_}
-							value={key_}
-							sx={{ flexDirection: "column", alignItems: "stretch" }}
-						>
-							<Typography>{key_}</Typography>
-							{key_ === "custom" && (
-								<Typography level="body-xs" component="div">
-									customInfo
-								</Typography>
-							)}
-						</Option>
-					))}
-				</Select>
-			</FormControl>
+					1
+				</Button>
+				<Button
+					onClick={() => {
+						onPromptChange("a magical forest with elves");
+					}}
+				>
+					2
+				</Button>
+				<Button
+					onClick={() => {
+						onPromptChange("mythical creatures in a magical realm");
+					}}
+				>
+					3
+				</Button>
+				<Button
+					onClick={() => {
+						onPromptChange("a man meditating");
+					}}
+				>
+					4
+				</Button>
+				<Button
+					onClick={() => {
+						onPromptChange("a screaming monster in a dark cave");
+					}}
+				>
+					5
+				</Button>
+				<Button
+					onClick={() => {
+						onPromptChange("neural net, futuristic cyborg in utopia");
+					}}
+				>
+					6
+				</Button>
+			</Box>
 			<FormControl sx={{ flex: 1 }}>
 				<FormLabel>Prompt</FormLabel>
 				<Textarea

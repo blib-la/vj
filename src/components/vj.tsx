@@ -4,6 +4,7 @@ import BrushIcon from "@mui/icons-material/Brush";
 import CasinoIcon from "@mui/icons-material/Casino";
 import ClearIcon from "@mui/icons-material/Clear";
 import Box from "@mui/joy/Box";
+import Button from "@mui/joy/Button";
 import Sheet from "@mui/joy/Sheet";
 import Switch from "@mui/joy/Switch";
 import Typography from "@mui/joy/Typography";
@@ -43,6 +44,11 @@ function useLog(key: string, trigger: unknown) {
 
 export function VJ() {
 	// Local States
+	const [guidanceSettings, setGuidanceSettings] = useState({
+		strength: 0.95,
+		guidance_scale: 1,
+		steps: 2,
+	});
 	const [isOverlay, setIsOverlay] = useState(false);
 	const [isColumn, setIsColumn] = useState(false);
 	const [prompt, setPrompt] = useState("");
@@ -93,15 +99,11 @@ export function VJ() {
 				payload: {
 					prompt: [prompt, illustrationStyles[illustrationStyle]].join(", "),
 					seed,
-					steps: 1,
-					guidance_scale: 0,
-					strength: 1,
+					...guidanceSettings,
 				},
 			});
 		}
-	}, [send, prompt, seed, isRunning, illustrationStyle]);
-
-	useLog("send", send);
+	}, [guidanceSettings, send, prompt, seed, isRunning, illustrationStyle]);
 
 	return (
 		<Box sx={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
@@ -114,11 +116,17 @@ export function VJ() {
 						isRunning={isRunning}
 						onStop={() => {
 							setIsLoading(true);
-							send({ action: "livePainting:stop", payload: { appId: APP_ID } });
+							send({
+								action: "livePainting:stop",
+								payload: { appId: APP_ID },
+							});
 						}}
 						onStart={() => {
 							setIsLoading(true);
-							send({ action: "livePainting:start", payload: { appId: APP_ID } });
+							send({
+								action: "livePainting:start",
+								payload: { appId: APP_ID, stablefast: true },
+							});
 						}}
 					/>
 
@@ -189,6 +197,66 @@ export function VJ() {
 				</StyledButtonWrapper>
 				{/* Right Side of the header */}
 				<StyledButtonWrapper>
+					<Button
+						variant={guidanceSettings.steps === 1 ? "soft" : "plain"}
+						onClick={() => {
+							setGuidanceSettings({
+								steps: 1,
+								guidance_scale: 0,
+								strength: 1,
+							});
+						}}
+					>
+						1
+					</Button>
+					<Button
+						variant={guidanceSettings.steps === 2 ? "soft" : "plain"}
+						onClick={() => {
+							setGuidanceSettings({
+								steps: 2,
+								guidance_scale: 1,
+								strength: 0.98,
+							});
+						}}
+					>
+						2
+					</Button>
+					<Button
+						variant={guidanceSettings.steps === 3 ? "soft" : "plain"}
+						onClick={() => {
+							setGuidanceSettings({
+								steps: 3,
+								guidance_scale: 1,
+								strength: 0.95,
+							});
+						}}
+					>
+						3
+					</Button>
+					<Button
+						variant={guidanceSettings.steps === 4 ? "soft" : "plain"}
+						onClick={() => {
+							setGuidanceSettings({
+								steps: 4,
+								guidance_scale: 1.25,
+								strength: 0.95,
+							});
+						}}
+					>
+						4
+					</Button>
+					<Button
+						variant={guidanceSettings.steps === 5 ? "soft" : "plain"}
+						onClick={() => {
+							setGuidanceSettings({
+								steps: 5,
+								guidance_scale: 1.5,
+								strength: 0.85,
+							});
+						}}
+					>
+						5
+					</Button>
 					<Box sx={{ flex: 1 }} />
 					<AudioAnalyzer />
 					{/* Save the image to disk (includes a control + s listener) */}
@@ -222,25 +290,18 @@ export function VJ() {
 							>
 								<Box
 									sx={{
-										height: 512,
-										position: isOverlay ? "absolute" : "relative",
-									}}
-								>
-									<RenderingArea />
-								</Box>
-								<Box
-									sx={{
 										width: 512,
 										height: 512,
-										zIndex: 2,
 										position: isOverlay ? "absolute" : "relative",
 										display: "flex",
+										zIndex: 1,
 									}}
 								>
 									<Box
 										sx={{
 											position: "absolute",
 											inset: 0,
+											opacity: isOverlay ? 0 : 1,
 										}}
 									>
 										<CompositeArea
@@ -258,6 +319,15 @@ export function VJ() {
 											clearCounter={clearCounter}
 										/>
 									</Box>
+								</Box>
+								<Box
+									sx={{
+										height: 512,
+										position: isOverlay ? "absolute" : "relative",
+										pointerEvents: "none",
+									}}
+								>
+									<RenderingArea />
 								</Box>
 							</Sheet>
 						</Box>

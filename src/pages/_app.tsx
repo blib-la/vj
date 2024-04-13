@@ -7,10 +7,6 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { useEffect } from "react";
 
-import package_ from "../../package.json";
-
-const id = package_.name;
-
 export function ThemeHandler() {
 	const { setMode } = useColorScheme();
 
