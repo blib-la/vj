@@ -7,13 +7,16 @@ import { drawingCanvasAtom, livePaintingOptionsAtom } from "../atoms";
 export function DrawingArea({
 	isOverlay,
 	clearCounter,
+	isErasing: isErasing_,
 }: {
 	isOverlay?: boolean;
+	isErasing?: boolean;
 	clearCounter: number;
 }) {
 	const canvas = useRef<HTMLCanvasElement>(null);
 	const context = useRef<CanvasRenderingContext2D | null>(null);
 	const isDrawing = useRef<boolean>(false);
+	const isErasing = useRef<boolean>(isErasing_ ?? false);
 
 	const canvasContainerReference = useRef<HTMLDivElement>(null);
 	const [, setDrawingCanvas] = useAtom(drawingCanvasAtom);
@@ -74,6 +77,11 @@ export function DrawingArea({
 			}
 
 			if (context.current) {
+				if (isErasing.current) {
+					context.current.globalCompositeOperation = "destination-out";
+				} else {
+					context.current.globalCompositeOperation = "source-over";
+				}
 				context.current.lineTo(event.clientX - rect.left, event.clientY - rect.top);
 				context.current.stroke();
 			}
@@ -134,6 +142,10 @@ export function DrawingArea({
 			context.current.clearRect(0, 0, canvas.current.width, canvas.current.height);
 		}
 	}, [clearCounter]);
+
+	useEffect(() => {
+		isErasing.current = isErasing_ ?? false;
+	}, [isErasing_]);
 
 	return (
 		<Box

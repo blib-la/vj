@@ -8,9 +8,10 @@ import { APP_ID } from "@/constants";
 type CompositeParameters = {
 	background?: string;
 	canvas?: OffscreenCanvas | null;
+	isRunning?: boolean;
 };
 
-export function CompositeArea({ background }: CompositeParameters) {
+export function CompositeArea({ background, isRunning }: CompositeParameters) {
 	const canvas = useRef<HTMLCanvasElement>(null);
 
 	const [drawingCanvas_] = useAtom(drawingCanvasAtom);
@@ -25,14 +26,17 @@ export function CompositeArea({ background }: CompositeParameters) {
 		let animationFrameId: number;
 
 		const canvasElement = canvas.current;
-
-		if (!canvasElement || !waveformCanvas_ || !drawingCanvas_) {
+		if (!canvasElement) {
 			return;
 		}
-
 		const dpr = Math.max(window.devicePixelRatio, 1);
 		canvasElement.height = 512 * dpr;
 		canvasElement.width = 512 * dpr;
+
+		if (!waveformCanvas_ || !drawingCanvas_) {
+			return;
+		}
+
 		const context = canvasElement.getContext("2d");
 
 		if (!context) {
@@ -83,24 +87,26 @@ export function CompositeArea({ background }: CompositeParameters) {
 
 				offscreenContext.drawImage(canvasElement, 0, 0);
 
-				// Send the composite canvas data to the backend
-				offscreenCanvas.toBlob(
-					async blob => {
-						if (!blob) {
-							return;
-						}
+				if (isRunning) {
+					// Send the composite canvas data to the backend
+					offscreenCanvas.toBlob(
+						async blob => {
+							if (!blob) {
+								return;
+							}
 
-						const arrayBuffer = await blob.arrayBuffer();
-						const buffer = Buffer.from(arrayBuffer);
+							const arrayBuffer = await blob.arrayBuffer();
+							const buffer = Buffer.from(arrayBuffer);
 
-						send({
-							action: "livePainting:imageBuffer",
-							payload: { appId: APP_ID, buffer },
-						});
-					},
-					"image/jpeg",
-					0.1
-				);
+							send({
+								action: "livePainting:imageBuffer",
+								payload: { appId: APP_ID, buffer },
+							});
+						},
+						"image/jpeg",
+						0.1
+					);
+				}
 			}
 
 			animationFrameId = requestAnimationFrame(renderLoop);
@@ -113,7 +119,7 @@ export function CompositeArea({ background }: CompositeParameters) {
 		return () => {
 			cancelAnimationFrame(animationFrameId);
 		};
-	}, [drawingCanvas_, waveformCanvas_, send]);
+	}, [drawingCanvas_, waveformCanvas_, send, isRunning]);
 
 	return <canvas ref={canvas} style={{ pointerEvents: "none", background }} />;
 }
