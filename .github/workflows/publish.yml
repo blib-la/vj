@@ -37,6 +37,7 @@ jobs:
 
       - name: Semantic release
         uses: codfish/semantic-release-action@v3
+        id: semanticrelease
         with:
           additional-packages: |
             ['@semantic-release/git', '@semantic-release/changelog']
@@ -50,6 +51,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: app.7z
-          tag_name: v1.0.0
+          tag_name: $RELEASE_GIT_TAG
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
