@@ -27,7 +27,9 @@ jobs:
           node-version-file: ".nvmrc"
 
       - name: Setup 7zip
-        run: sudo apt-get update && sudo apt-get install -y p7zip-full
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip p7zip-full
 
       - name: Install dependencies
         run: npm install
