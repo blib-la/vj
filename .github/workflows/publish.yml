@@ -31,12 +31,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y p7zip p7zip-full
 
-      - name: Check 7zip Command Availability
-        run: |
-          7za
-          echo $PATH
-          whereis 7za
-
       - name: Install dependencies
         run: npm install
 
