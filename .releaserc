@@ -18,12 +18,6 @@
       }
     ],
     [
-      "@semantic-release/exec",
-      {
-        "prepareCmd": "npm run build && /usr/bin/7za a app.7z ./out/*"
-      }
-    ],
-    [
       "@semantic-release/git",
       {
         "assets": [
@@ -34,14 +28,7 @@
       }
     ],
     [
-      "@semantic-release/github",
-      {
-        "assets": [
-          {
-            "path": "app.7z"
-          }
-        ]
-      }
+      "@semantic-release/github"
     ]
   ]
 }

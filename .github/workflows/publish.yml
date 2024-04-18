@@ -26,21 +26,29 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
-      - name: Setup 7zip
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y p7zip-full
-
       - name: Install dependencies
         run: npm install
-
-      - name: Fix auto-fixable eslint issues
-        run: npm run eslint -- --fix
 
       - name: Update the ToC in the README.md
         run: npx markdown-toc README.md -i
 
-      - name: Semantic Release
-        run: npx semantic-release
+      - name: Build app
+        run: npm run build
+
+      - name: Semantic release
+        uses: codfish/semantic-release-action@v3
+        with:
+          additional-packages: |
+            ['@semantic-release/git', '@semantic-release/changelog']
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create archive
+        run: /usr/bin/7za a app.7z ./out/* ./package.json ./captain.md ./CHANGELOG.md
+
+      - name: Add archive to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: app.7z
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
