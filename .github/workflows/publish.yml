@@ -40,7 +40,7 @@ jobs:
       - name: Update the ToC in the README.md
         run: npx markdown-toc README.md -i
 
-    - name: Semantic Release
+      - name: Semantic Release
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
