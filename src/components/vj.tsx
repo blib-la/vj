@@ -60,20 +60,20 @@ const quickSettings: {
 	{
 		id: v4(),
 		steps: 3,
-		guidance_scale: 0.8,
-		strength: 0.95,
+		guidance_scale: 0,
+		strength: 1,
 	},
 	{
 		id: v4(),
 		steps: 4,
-		guidance_scale: 1.1,
-		strength: 0.9,
+		guidance_scale: 0,
+		strength: 1,
 	},
 	{
 		id: v4(),
 		steps: 5,
-		guidance_scale: 1.5,
-		strength: 0.85,
+		guidance_scale: 1.0,
+		strength: 0.95,
 	},
 ];
 
