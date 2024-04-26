@@ -14,10 +14,10 @@
     "start": "next start"
   },
   "dependencies": {
-    "@captn/joy": "^0.15.0",
-    "@captn/react": "^0.15.0",
-    "@captn/theme": "^0.15.0",
-    "@captn/utils": "^0.15.0",
+    "@captn/joy": "^0.21.2",
+    "@captn/react": "^0.21.0",
+    "@captn/theme": "^0.21.0",
+    "@captn/utils": "^0.21.0",
     "@emotion/react": "11.11.4",
     "@emotion/styled": "11.11.5",
     "@mui/icons-material": "5.15.15",
