@@ -99,7 +99,7 @@ export function CompositeArea({ background, isRunning }: CompositeParameters) {
 							const buffer = Buffer.from(arrayBuffer);
 
 							send({
-								action: "livePainting:imageBuffer",
+								action: "image-to-image:imageBuffer",
 								payload: { appId: APP_ID, buffer },
 							});
 						},

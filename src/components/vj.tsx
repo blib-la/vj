@@ -101,13 +101,13 @@ export function VJ() {
 	const { send } = useSDK<unknown, string>(APP_ID, {
 		onMessage(message) {
 			switch (message.action) {
-				case "livePainting:started": {
+				case "image-to-image:started": {
 					setIsRunning(true);
 					setIsLoading(false);
 					break;
 				}
 
-				case "livePainting:stopped": {
+				case "image-to-image:stopped": {
 					setIsRunning(false);
 					setIsLoading(false);
 					break;
@@ -122,12 +122,12 @@ export function VJ() {
 
 	useWaveformAnalyzer(clearCounter);
 
-	useUnload(APP_ID, "livePainting:stop");
+	useUnload(APP_ID, "image-to-image:stop");
 
 	useEffect(() => {
 		if (isRunning) {
 			send({
-				action: "livePainting:settings",
+				action: "image-to-image:settings",
 				payload: {
 					prompt: [prompt, illustrationStyles[illustrationStyle]].join(", "),
 					seed,
@@ -149,14 +149,14 @@ export function VJ() {
 						onStop={() => {
 							setIsLoading(true);
 							send({
-								action: "livePainting:stop",
+								action: "image-to-image:stop",
 								payload: { appId: APP_ID },
 							});
 						}}
 						onStart={() => {
 							setIsLoading(true);
 							send({
-								action: "livePainting:start",
+								action: "image-to-image:start",
 								payload: { appId: APP_ID, stablefast: true },
 							});
 						}}

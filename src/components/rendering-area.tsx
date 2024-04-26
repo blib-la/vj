@@ -12,7 +12,7 @@ export function RenderingArea() {
 		onMessage(message) {
 			// eslint-disable-next-line default-case
 			switch (message.action) {
-				case "livePainting:generated": {
+				case "image-to-image:generated": {
 					if (imgReference.current) {
 						imgReference.current.src = message.payload;
 					}
