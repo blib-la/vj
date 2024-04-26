@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/blib-la/vj/compare/v1.0.0...v1.1.0) (2024-04-26)
+
+
+### Features
+
+* use new image-to-image pipeline ([8277b86](https://github.com/blib-la/vj/commit/8277b866964c4e6d4a9e06b803790518cc98bc3f))
+
 # 1.0.0 (2024-04-18)
 
 
