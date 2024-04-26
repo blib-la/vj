@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/blib-la/vj/compare/v1.1.0...v1.2.0) (2024-04-26)
+
+
+### Features
+
+* adjust quick-settings ([f1ce2ae](https://github.com/blib-la/vj/commit/f1ce2ae5fc93987967872abdaf970b1273b3d31f))
+
 # [1.1.0](https://github.com/blib-la/vj/compare/v1.0.0...v1.1.0) (2024-04-26)
 
 
